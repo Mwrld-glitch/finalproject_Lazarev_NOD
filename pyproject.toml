@@ -1,0 +1,35 @@
+[project]
+name = "finalproject-lazarev-nod-new"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Mwrld-glitch",email = "loba4evskogo@mail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "prompt (>=0.4.1,<0.5.0)",
+    "prettytable (>=3.16.0,<4.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [
+    { include = "valutatrade_hub" },
+]
+
+[tool.poetry.scripts]
+project = "main:main"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+exclude = ["venv", ".venv", "dist", "__pycache__"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = []
