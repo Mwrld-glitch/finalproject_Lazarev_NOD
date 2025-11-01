@@ -1,6 +1,7 @@
 import hashlib
 from datetime import datetime
 
+
 class User:
     def __init__(self, user_id: int, username: str, hashed_password: str, salt: str, registration_date: str):
         self._user_id = user_id

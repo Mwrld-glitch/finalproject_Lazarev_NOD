@@ -5,6 +5,20 @@
   },
   {
     "user_id": 2,
-    "wallets": {}
+    "wallets": {
+      "BTC": {
+        "currency_code": "BTC",
+        "balance": 0.05
+      }
+    }
+  },
+  {
+    "user_id": 3,
+    "wallets": {
+      "BTC": {
+        "currency_code": "BTC",
+        "balance": 0.030000000000000002
+      }
+    }
   }
 ]
