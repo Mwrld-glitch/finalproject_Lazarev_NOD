@@ -1,124 +1,120 @@
 import json
 import os
+from datetime import datetime, timedelta
+
 from valutatrade_hub.decorators import log_action
 from valutatrade_hub.core.models import Portfolio, User
+from valutatrade_hub.core.currencies import get_currency
+from valutatrade_hub.core.exceptions import (
+    CurrencyNotFoundError, InsufficientFundsError, ApiRequestError
+)
+from valutatrade_hub.infra.settings import SettingsLoader
 
-"""Бизнес-логика регистрации пользователя"""
+settings = SettingsLoader()
+_current_user = None
+
+def _load_json_file(file_path):
+    """Универсальная загрузка JSON файла"""
+    if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
+        return []
+    with open(file_path, "r") as f:
+        return json.load(f)
+
+def _save_json_file(file_path, data):
+    """Универсальное сохранение в JSON файл"""
+    with open(file_path, "w") as f:
+        json.dump(data, f, indent=2)
+
 @log_action(action="REGISTER")
 def register_user(username: str, password: str) -> User:
-    # Проверяем уникальность username
-    users_file = "data/users.json"
-    os.makedirs("data", exist_ok=True)
+    data_path = settings.get("data_path", "data/")
+    users_file = os.path.join(data_path, "users.json")
+    os.makedirs(data_path, exist_ok=True)
     
-    if not os.path.exists(users_file) or os.path.getsize(users_file) == 0:
-        users = []
-    else:
-        with open(users_file, "r") as f:
-            users = json.load(f)
-    
-    # Проверка уникальности
-    for user_data in users:
-        if user_data["username"] == username:
+    try:
+        users = _load_json_file(users_file)
+        
+        if any(user["username"] == username for user in users):
             raise ValueError(f"Имя пользователя '{username}' уже занято")
-    
-    # Генерируем ID (автоинкремент)
-    if users:
-        user_id = max(user["user_id"] for user in users) + 1
-    else:
-        user_id = 1
-    
-    # Создаем пользователя
-    user = User.create_new(user_id, username, password)
-    
-    # Сохраняем пользователя
-    users.append(user.to_dict())
-    with open(users_file, "w") as f:
-        json.dump(users, f, indent=2)
-    
-    # Создаем пустой портфель
-    portfolios_file = "data/portfolios.json"
-    if not os.path.exists(portfolios_file) or os.path.getsize(portfolios_file) == 0:
-        portfolios = []
-    else:
-        with open(portfolios_file, "r") as f:
-            portfolios = json.load(f)
-    
-    portfolio = {"user_id": user_id, "wallets": {}}
-    portfolios.append(portfolio)
-    with open(portfolios_file, "w") as f:
-        json.dump(portfolios, f, indent=2)
-    
-    return user
-
-"""Бизнес-логика на логин пользователя"""
-_current_user = None  # Текущий пользователь (сессия)
+        
+        user_id = max((user["user_id"] for user in users), default=0) + 1
+        user = User.create_new(user_id, username, password)
+        
+        users.append(user.to_dict())
+        _save_json_file(users_file, users)
+        
+        # Создаем пустой портфель
+        portfolios_file = os.path.join(data_path, "portfolios.json")
+        portfolios = _load_json_file(portfolios_file)
+        portfolios.append({"user_id": user_id, "wallets": {}})
+        _save_json_file(portfolios_file, portfolios)
+        
+        return user
+        
+    except Exception as e:
+        raise ApiRequestError(f"Ошибка при регистрации: {str(e)}")
 
 @log_action(action="LOGIN")
 def login_user(username: str, password: str) -> User:
     global _current_user
     
-    users_file = "data/users.json"
+    data_path = settings.get("data_path", "data/")
+    users_file = os.path.join(data_path, "users.json")
+    
     if not os.path.exists(users_file):
         raise ValueError(f"Пользователь '{username}' не найден")
     
-    with open(users_file, "r") as f:
-        users = json.load(f)
-    
-    for user_data in users:
-        if user_data["username"] == username:
-            user = User.from_dict(user_data)
-            if user.verify_password(password):
-                _current_user = user
-                return user
-            else:
+    try:
+        users = _load_json_file(users_file)
+        
+        for user_data in users:
+            if user_data["username"] == username:
+                user = User.from_dict(user_data)
+                if user.verify_password(password):
+                    _current_user = user
+                    return user
                 raise ValueError("Неверный пароль")
-    
-    raise ValueError(f"Пользователь '{username}' не найден")
+        
+        raise ValueError(f"Пользователь '{username}' не найден")
+        
+    except Exception as e:
+        raise ApiRequestError(f"Ошибка при входе: {str(e)}")
 
 def get_current_user():
-    """Возвращает текущего пользователя"""
     return _current_user
 
 def logout_user():
-    """Выход пользователя"""
     global _current_user
     _current_user = None
 
-"""Бизнес-логика получения портфеля пользователя"""
 def get_user_portfolio(user_id: int) -> Portfolio:
-    """Загружает портфель пользователя из файла"""
-    portfolios_file = "data/portfolios.json"
+    data_path = settings.get("data_path", "data/")
+    portfolios_file = os.path.join(data_path, "portfolios.json")
     
     if not os.path.exists(portfolios_file):
         return Portfolio(user_id, {})
     
-    with open(portfolios_file, "r") as f:
-        portfolios = json.load(f)
-    
-    for portfolio_data in portfolios:
-        if portfolio_data["user_id"] == user_id:
-            return Portfolio.from_dict(portfolio_data)
-    
-    # Если портфель не найден, создаем пустой
-    return Portfolio(user_id, {})
+    try:
+        portfolios = _load_json_file(portfolios_file)
+        for portfolio_data in portfolios:
+            if portfolio_data["user_id"] == user_id:
+                return Portfolio.from_dict(portfolio_data)
+        return Portfolio(user_id, {})
+        
+    except Exception as e:
+        raise ApiRequestError(f"Ошибка при загрузке портфеля: {str(e)}")
 
-def get_portfolio_display(user_id: int, base_currency: str = "USD") -> dict:
-    # Проверяем что базовая валюта поддерживается
-    supported_currencies = ['USD', 'EUR', 'BTC', 'ETH', 'RUB']
-    if base_currency not in supported_currencies:
-        raise ValueError(f"Неизвестная базовая валюта '{base_currency}'")
+def get_portfolio_display(user_id: int, base_currency: str = None) -> dict:
+    base_currency = base_currency or settings.get("default_base_currency", "USD")
+    get_currency(base_currency)  # Валидация
     
     portfolio = get_user_portfolio(user_id)
     total_value = portfolio.get_total_value(base_currency)
     
     wallets_display = []
     for currency_code, wallet in portfolio.wallets.items():
-        if currency_code == base_currency:
-            value_in_base = wallet.balance
-        else:
-            temp_portfolio = Portfolio(user_id, {currency_code: wallet})
-            value_in_base = temp_portfolio.get_total_value(base_currency)
-            
+        value_in_base = (wallet.balance if currency_code == base_currency 
+                        else Portfolio(user_id, {currency_code: wallet}).get_total_value(base_currency))
         wallets_display.append({
             "currency_code": currency_code,
             "balance": wallet.balance,
@@ -131,26 +127,23 @@ def get_portfolio_display(user_id: int, base_currency: str = "USD") -> dict:
         "wallets": wallets_display
     }
 
-
 @log_action(action="BUY", verbose=True)
-def buy_currency(user_id: int, currency: str, amount: float) -> dict:
+def buy_currency(user_id: int, currency_code: str, amount: float) -> dict:
     if amount <= 0:
         raise ValueError("'amount' должен быть положительным числом")
     
+    get_currency(currency_code)  # Валидация
+    
     portfolio = get_user_portfolio(user_id)
+    if currency_code not in portfolio.wallets:
+        portfolio.add_currency(currency_code)
     
-    if currency not in portfolio.wallets:
-        portfolio.add_currency(currency)
+    rate_data = get_exchange_rate(currency_code, "USD")
+    rate = rate_data['rate']
     
-    rates = {"BTC": 59300.00, "ETH": 3200.00, "EUR": 1.07}
-    if currency not in rates:
-        raise ValueError(f"Не удалось получить курс для {currency}→USD")
-    
-    rate = rates[currency]
-    wallet = portfolio.get_wallet(currency)
+    wallet = portfolio.get_wallet(currency_code)
     old_balance = wallet.balance
     wallet.deposit(amount)
-    
     save_portfolio(portfolio)
     
     return {
@@ -161,49 +154,27 @@ def buy_currency(user_id: int, currency: str, amount: float) -> dict:
         'cost': amount * rate
     }
 
-def save_portfolio(portfolio: Portfolio):
-    portfolios_file = "data/portfolios.json"
-    
-    if os.path.exists(portfolios_file):
-        with open(portfolios_file, "r") as f:
-            portfolios = json.load(f)
-    else:
-        portfolios = []
-    
-    for i, p in enumerate(portfolios):
-        if p["user_id"] == portfolio.user_id:
-            portfolios[i] = portfolio.to_dict()
-            break
-    else:
-        portfolios.append(portfolio.to_dict())
-    
-    with open(portfolios_file, "w") as f:
-        json.dump(portfolios, f, indent=2)
-
-
-@log_action(action="SELL", verbose=True) 
-def sell_currency(user_id: int, currency: str, amount: float) -> dict:
+@log_action(action="SELL", verbose=True)
+def sell_currency(user_id: int, currency_code: str, amount: float) -> dict:
     if amount <= 0:
         raise ValueError("'amount' должен быть положительным числом")
     
+    get_currency(currency_code)  # Валидация
+    
     portfolio = get_user_portfolio(user_id)
+    if currency_code not in portfolio.wallets:
+        raise ValueError(f"У вас нет кошелька '{currency_code}'. Добавьте валюту: она создаётся автоматически при первой покупке.")
     
-    if currency not in portfolio.wallets:
-        raise ValueError(f"У вас нет кошелька '{currency}'. Добавьте валюту: она создаётся автоматически при первой покупке.")
+    rate_data = get_exchange_rate(currency_code, "USD")
+    rate = rate_data['rate']
     
-    rates = {"BTC": 59800.00, "ETH": 3200.00, "EUR": 1.07, "USD": 1.0}
-    if currency not in rates:
-        raise ValueError(f"Не удалось получить курс для {currency}→USD")
-    
-    rate = rates[currency]
-    wallet = portfolio.get_wallet(currency)
+    wallet = portfolio.get_wallet(currency_code)
     old_balance = wallet.balance
     
     if amount > wallet.balance:
-        raise ValueError(f"Недостаточно средств: доступно {wallet.balance:.4f} {currency}, требуется {amount:.4f} {currency}")
+        raise InsufficientFundsError(wallet.balance, amount, currency_code)
     
     wallet.withdraw(amount)
-    
     save_portfolio(portfolio)
     
     return {
@@ -214,57 +185,80 @@ def sell_currency(user_id: int, currency: str, amount: float) -> dict:
         'revenue': amount * rate
     }
 
-
 def get_exchange_rate(from_currency: str, to_currency: str) -> dict:
-    from datetime import datetime, timedelta
+    get_currency(from_currency)  # Валидация
+    get_currency(to_currency)    # Валидация
     
-    # Шаг 1: Проверка валют
-    if not from_currency or not to_currency:
-        raise ValueError("Коды валют не могут быть пустыми")
+    ttl_seconds = settings.get("rates_ttl_seconds", 300)
+    data_path = settings.get("data_path", "data/")
+    rates_file = os.path.join(data_path, "rates.json")
     
-    # Шаг 2: Пробуем rates.json
-    rates_file = "data/rates.json"
     if os.path.exists(rates_file):
-        with open(rates_file, "r") as f:
-            rates_data = json.load(f)
-        
-        rate_key = f"{from_currency}_{to_currency}"
-        if rate_key in rates_data:
-            rate_info = rates_data[rate_key]
-            # Проверка свежести
-            updated_at = datetime.fromisoformat(rate_info["updated_at"])
-            if datetime.now() - updated_at <= timedelta(minutes=5):
-                # Курс свежий - возвращаем
-                return _calculate_rates(from_currency, to_currency, rate_info["rate"])
+        try:
+            rates_data = _load_json_file(rates_file)
+            rate_key = f"{from_currency}_{to_currency}"
+            if rate_key in rates_data:
+                rate_info = rates_data[rate_key]
+                updated_at = datetime.fromisoformat(rate_info["updated_at"])
+                if datetime.now() - updated_at <= timedelta(seconds=ttl_seconds):
+                    reverse_rate = 1 / rate_info["rate"]
+                    return {
+                        'from_currency': from_currency,
+                        'to_currency': to_currency,
+                        'rate': rate_info["rate"],
+                        'updated_at': rate_info["updated_at"],
+                        'reverse_rate': reverse_rate
+                    }
+        except Exception:
+            pass
     
-    # Заглушка если rates.json недоступен или курс устарел
     stub_rates = {
-        "EUR_USD": 1.0786,
-        "BTC_USD": 59337.21,
-        "RUB_USD": 0.01016, 
-        "ETH_USD": 3720.00
+        "EUR_USD": 1.0786, "BTC_USD": 59337.21, "USD_BTC": 0.00001685,
+        "USD_EUR": 0.93, "ETH_USD": 3720.00
     }
     
-    # Ищем в заглушке
     rate_key = f"{from_currency}_{to_currency}"
     if rate_key in stub_rates:
-        return _calculate_rates(from_currency, to_currency, stub_rates[rate_key])
+        rate = stub_rates[rate_key]
+    else:
+        reverse_key = f"{to_currency}_{from_currency}"
+        if reverse_key in stub_rates:
+            rate = 1 / stub_rates[reverse_key]
+        else:
+            raise ApiRequestError(f"Курс {from_currency}→{to_currency} недоступен")
     
-    reverse_key = f"{to_currency}_{from_currency}" 
-    if reverse_key in stub_rates:
-        reverse_rate = stub_rates[reverse_key]
-        rate = 1 / reverse_rate
-        return _calculate_rates(from_currency, to_currency, rate)
+    # Сохраняем в кеш
+    try:
+        rates_data = _load_json_file(rates_file) if os.path.exists(rates_file) else {}
+        rates_data[rate_key] = {"rate": rate, "updated_at": datetime.now().isoformat()}
+        rates_data["last_refresh"] = datetime.now().isoformat()
+        _save_json_file(rates_file, rates_data)
+    except Exception:
+        pass
     
-    # Ошибка если курс не найден
-    raise ValueError(f"Курс {from_currency}→{to_currency} недоступен. Повторите попытку позже.")
-
-def _calculate_rates(from_currency, to_currency, rate):
-    """Вычисляет прямые и обратные курсы"""
     return {
         'from_currency': from_currency,
         'to_currency': to_currency,
         'rate': rate,
-        'updated_at': "2025-10-09T10:30:00",
+        'updated_at': datetime.now().isoformat(),
         'reverse_rate': 1 / rate
     }
+
+def save_portfolio(portfolio: Portfolio):
+    data_path = settings.get("data_path", "data/")
+    portfolios_file = os.path.join(data_path, "portfolios.json")
+    
+    try:
+        portfolios = _load_json_file(portfolios_file) if os.path.exists(portfolios_file) else []
+        
+        for i, p in enumerate(portfolios):
+            if p["user_id"] == portfolio.user_id:
+                portfolios[i] = portfolio.to_dict()
+                break
+        else:
+            portfolios.append(portfolio.to_dict())
+        
+        _save_json_file(portfolios_file, portfolios)
+            
+    except Exception as e:
+        raise ApiRequestError(f"Ошибка при сохранении портфеля: {str(e)}")

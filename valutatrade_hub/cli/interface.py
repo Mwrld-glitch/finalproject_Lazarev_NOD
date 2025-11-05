@@ -1,4 +1,7 @@
 from valutatrade_hub.core import usecases
+from valutatrade_hub.core.exceptions import (
+    CurrencyNotFoundError, InsufficientFundsError, ApiRequestError
+)
 
 
 def main():
@@ -56,6 +59,8 @@ def main():
                     print(f"  - {wallet_display['currency_code']}: {wallet_display['balance']:.2f} → {wallet_display['value_in_base']:.2f} {display_data['base_currency']}")
                 print("  " + "-" * 40)
                 print(f"  ИТОГО: {display_data['total_value']:,.2f} {display_data['base_currency']}")
+            except CurrencyNotFoundError as e:
+                print(f"Неизвестная базовая валюта '{e.code}'")
             except Exception as e:
                 print(f"Ошибка: {e}")
 
@@ -79,12 +84,14 @@ def main():
                 print("Изменения в портфеле:")
                 print(f"  - {currency}: было {result['old_balance']:.4f} → стало {result['new_balance']:.4f}")
                 print(f"Оценочная стоимость покупки: {result['cost']:,.2f} USD")
+            except CurrencyNotFoundError as e:
+                print(f"Неизвестная валюта '{e.code}'")
+            except ApiRequestError as e:
+                print(f"Не удалось получить курс для {currency}→USD")
             except ValueError as e:
                 error_msg = str(e)
                 if "положительным" in error_msg:
                     print("'amount' должен быть положительным числом")
-                elif "Не удалось получить курс" in error_msg:
-                    print(f"Не удалось получить курс для {currency}→USD")
                 else:
                     print(f"Ошибка: {e}")
             except Exception as e:
@@ -110,13 +117,15 @@ def main():
                 print("Изменения в портфеле:")
                 print(f"  - {currency}: было {result['old_balance']:.4f} → стало {result['new_balance']:.4f}")
                 print(f"Оценочная выручка: {result['revenue']:,.2f} USD")
+            except CurrencyNotFoundError as e:
+                print(f"Неизвестная валюта '{e.code}'")
+            except InsufficientFundsError as e:
+                print(str(e))
             except ValueError as e:
                 error_msg = str(e)
                 if "положительным" in error_msg:
                     print("'amount' должен быть положительным числом")
                 elif "нет кошелька" in error_msg:
-                    print(error_msg)
-                elif "Недостаточно средств" in error_msg:
                     print(error_msg)
                 else:
                     print(f"Ошибка: {e}")
@@ -138,11 +147,10 @@ def main():
                 result = usecases.get_exchange_rate(from_currency, to_currency)
                 print(f"Курс {result['from_currency']}→{result['to_currency']}: {result['rate']:.8f} (обновлено: {result['updated_at']})")
                 print(f"Обратный курс {result['to_currency']}→{result['from_currency']}: {result['reverse_rate']:.2f}")
-            except ValueError as e:
-                if "недоступен" in str(e):
-                    print(f"Курс {from_currency}→{to_currency} недоступен. Повторите попытку позже.")
-                else:
-                    print(f"Ошибка: {e}")
+            except CurrencyNotFoundError as e:
+                print(f"Неизвестная валюта '{e.code}'")
+            except ApiRequestError as e:
+                print(f"Курс {from_currency}→{to_currency} недоступен. Повторите попытку позже.")
             except Exception as e:
                 print(f"Ошибка: {e}")
 
