@@ -1,9 +1,10 @@
 import json
 import os
-
+from valutatrade_hub.decorators import log_action
 from valutatrade_hub.core.models import Portfolio, User
 
 """Бизнес-логика регистрации пользователя"""
+@log_action(action="REGISTER")
 def register_user(username: str, password: str) -> User:
     # Проверяем уникальность username
     users_file = "data/users.json"
@@ -52,6 +53,7 @@ def register_user(username: str, password: str) -> User:
 """Бизнес-логика на логин пользователя"""
 _current_user = None  # Текущий пользователь (сессия)
 
+@log_action(action="LOGIN")
 def login_user(username: str, password: str) -> User:
     global _current_user
     
@@ -130,7 +132,7 @@ def get_portfolio_display(user_id: int, base_currency: str = "USD") -> dict:
     }
 
 
-
+@log_action(action="BUY", verbose=True)
 def buy_currency(user_id: int, currency: str, amount: float) -> dict:
     if amount <= 0:
         raise ValueError("'amount' должен быть положительным числом")
@@ -179,7 +181,7 @@ def save_portfolio(portfolio: Portfolio):
         json.dump(portfolios, f, indent=2)
 
 
-
+@log_action(action="SELL", verbose=True) 
 def sell_currency(user_id: int, currency: str, amount: float) -> dict:
     if amount <= 0:
         raise ValueError("'amount' должен быть положительным числом")
