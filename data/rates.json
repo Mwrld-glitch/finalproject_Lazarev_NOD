@@ -1,28 +1,64 @@
 {
-  "EUR_USD": {
-    "rate": 1.0786,
-    "updated_at": "2025-10-09T10:30:00"
-  },
+  "source": "ParserService",
+  "last_refresh": "2025-11-06T10:11:59.073242",
   "BTC_USD": {
-    "rate": 59337.21,
-    "updated_at": "2025-11-05T09:10:55.926869"
+    "rate": 102761,
+    "updated_at": "2025-11-06T10:11:59.061146",
+    "source": "CoinGecko"
   },
-  "RUB_USD": {
-    "rate": 0.01016,
-    "updated_at": "2025-10-09T10:31:12"
+  "USD_BTC": {
+    "rate": 9.73131830169033e-06,
+    "updated_at": "2025-11-06T10:11:59.062157",
+    "source": "CoinGecko"
   },
   "ETH_USD": {
-    "rate": 3720.0,
-    "updated_at": "2025-10-09T10:35:00"
+    "rate": 3374.91,
+    "updated_at": "2025-11-06T10:11:59.063121",
+    "source": "CoinGecko"
   },
-  "source": "ParserService",
-  "last_refresh": "2025-11-05T09:24:25.004597",
-  "USD_BTC": {
-    "rate": 1.685e-05,
-    "updated_at": "2025-11-05T09:11:11.355734"
+  "USD_ETH": {
+    "rate": 0.00029630419774156943,
+    "updated_at": "2025-11-06T10:11:59.064011",
+    "source": "CoinGecko"
+  },
+  "SOL_USD": {
+    "rate": 158.11,
+    "updated_at": "2025-11-06T10:11:59.065102",
+    "source": "CoinGecko"
+  },
+  "USD_SOL": {
+    "rate": 0.006324710644488014,
+    "updated_at": "2025-11-06T10:11:59.066015",
+    "source": "CoinGecko"
+  },
+  "EUR_USD": {
+    "rate": 0.8705,
+    "updated_at": "2025-11-06T10:11:59.066965",
+    "source": "ExchangeRate-API"
   },
   "USD_EUR": {
-    "rate": 0.93,
-    "updated_at": "2025-11-05T09:24:25.004586"
+    "rate": 1.1487650775416427,
+    "updated_at": "2025-11-06T10:11:59.067719",
+    "source": "ExchangeRate-API"
+  },
+  "GBP_USD": {
+    "rate": 0.7666,
+    "updated_at": "2025-11-06T10:11:59.069961",
+    "source": "ExchangeRate-API"
+  },
+  "USD_GBP": {
+    "rate": 1.3044612575006522,
+    "updated_at": "2025-11-06T10:11:59.070669",
+    "source": "ExchangeRate-API"
+  },
+  "RUB_USD": {
+    "rate": 81.2203,
+    "updated_at": "2025-11-06T10:11:59.071498",
+    "source": "ExchangeRate-API"
+  },
+  "USD_RUB": {
+    "rate": 0.012312192887738656,
+    "updated_at": "2025-11-06T10:11:59.072271",
+    "source": "ExchangeRate-API"
   }
 }

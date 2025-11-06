@@ -2,7 +2,7 @@ from valutatrade_hub.core import usecases
 from valutatrade_hub.core.exceptions import (
     CurrencyNotFoundError, InsufficientFundsError, ApiRequestError
 )
-
+from valutatrade_hub.parser_service.updater import rates_updater
 
 def main():
     print("=== ValutaTrade Hub ===")
@@ -13,6 +13,8 @@ def main():
     print("  buy --currency CODE --amount NUMBER")
     print("  sell --currency CODE --amount NUMBER")
     print("  get-rate --from CODE --to CODE")
+    print("  update-rates [--source NAME]")
+    print("  show-rates [--currency CODE] [--top N]")
     print("  exit")
     
     while True:
@@ -151,6 +153,83 @@ def main():
                 print(f"Неизвестная валюта '{e.code}'")
             except ApiRequestError as e:
                 print(f"Курс {from_currency}→{to_currency} недоступен. Повторите попытку позже.")
+            except Exception as e:
+                print(f"Ошибка: {e}")
+
+        elif command.startswith("update-rates"):
+            print("INFO: Starting rates update...")
+            
+            success = rates_updater.run_update()
+            if success:
+                # Получаем количество обновленных курсов
+                import json
+                with open("data/rates.json", "r") as f:
+                    rates_data = json.load(f)
+                
+                rate_count = 0
+                for key in rates_data:
+                    if key not in ["source", "last_refresh"]:
+                        rate_count += 1
+                
+                last_refresh = rates_data.get("last_refresh", "неизвестно")
+                print(f"Update successful. Total rates updated: {rate_count}. Last refresh: {last_refresh}")
+            else:
+                print("Update completed with errors. Check logs/parser.log for details.")
+
+        elif command.startswith("show-rates"):
+            try:
+                # Загружаем курсы из файла
+                import json
+                import os
+                
+                if not os.path.exists("data/rates.json"):
+                    print("Локональный кеш курсов пуст. Выполните 'update-rates', чтобы загрузить данные.")
+                    continue
+                
+                with open("data/rates.json", "r") as f:
+                    rates_data = json.load(f)
+                
+                # Базовая информация
+                last_refresh = rates_data.get("last_refresh", "неизвестно")
+                print(f"Rates from cache (updated at {last_refresh}):")
+                
+                # Фильтры
+                currency_filter = None
+                if "--currency" in command:
+                    parts = command.split()
+                    currency_index = parts.index("--currency")
+                    currency_filter = parts[currency_index + 1].upper()
+                
+                # Собираем курсы для отображения
+                display_rates = []
+                for key, value in rates_data.items():
+                    if key not in ["source", "last_refresh"] and isinstance(value, dict):
+                        if currency_filter is None or currency_filter in key:
+                            display_rates.append((key, value["rate"]))
+                
+                if not display_rates:
+                    if currency_filter:
+                        print(f"Курс для '{currency_filter}' не найден в кеше.")
+                    else:
+                        print("Нет доступных курсов для отображения.")
+                    continue
+                
+                # Сортировка для --top
+                if "--top" in command:
+                    parts = command.split()
+                    top_index = parts.index("--top")
+                    top_count = int(parts[top_index + 1])
+                    # Сортируем по убыванию курса (самые дорогие первые)
+                    display_rates.sort(key=lambda x: x[1], reverse=True)
+                    display_rates = display_rates[:top_count]
+                else:
+                    # По умолчанию сортируем по алфавиту
+                    display_rates.sort(key=lambda x: x[0])
+                
+                # Вывод
+                for currency_pair, rate in display_rates:
+                    print(f"- {currency_pair}: {rate}")
+                    
             except Exception as e:
                 print(f"Ошибка: {e}")
 
