@@ -22,7 +22,7 @@ class RatesStorage:
                 json.dump(data, f, indent=2)
             return True
         except Exception as e:
-            print(f"❌ Ошибка сохранения текущих курсов: {e}")
+            print(f"Ошибка сохранения текущих курсов: {e}")
             return False
 
     def save_historical_record(
@@ -65,7 +65,7 @@ class RatesStorage:
 
             return True
         except Exception as e:
-            print(f"❌ Ошибка сохранения исторической записи: {e}")
+            print(f"Ошибка сохранения исторической записи: {e}")
             return False
 
     def load_current_rates(self) -> Dict:

@@ -10,14 +10,22 @@ from valutatrade_hub.parser_service.updater import rates_updater
 def main():
     print("=== ValutaTrade Hub ===")
     print("Доступные команды:")
-    print("  register --username NAME --password PASS")
-    print("  login --username NAME --password PASS")
+    print("")
+    print("  Регистрация и вход:")
+    print("  register --username ИМЯ --password ПАРОЛЬ")
+    print("  login --username ИМЯ --password ПАРОЛЬ")
+    print("")
+    print("  Торговля:")
+    print("  buy --currency ВАЛЮТА --amount СУММА")
+    print("  sell --currency ВАЛЮТА --amount СУММА")
+    print("")
+    print("  Портфель и курсы:")
     print("  show-portfolio")
-    print("  buy --currency CODE --amount NUMBER")
-    print("  sell --currency CODE --amount NUMBER")
-    print("  get-rate --from CODE --to CODE")
-    print("  update-rates [--source NAME]")
-    print("  show-rates [--currency CODE] [--top N]")
+    print("  get-rate --from ВАЛЮТА --to ВАЛЮТА")
+    print("  update-rates")
+    print("  show-rates")
+    print("")
+    print("  Выход:")
     print("  exit")
 
     while True:
@@ -186,18 +194,18 @@ def main():
             try:
                 result = usecases.get_exchange_rate(from_currency, to_currency)
                 print(
-                    f"Курс {result['from_currency']}→{result['to_currency']}: "
+                    f"Курс {result['from_currency']} → {result['to_currency']}: "
                     f"{result['rate']:.8f} (обновлено: {result['updated_at']})"
                 )
                 print(
-                    f"Обратный курс {result['to_currency']}→"
+                    f"Обратный курс {result['to_currency']}→ "
                     f"{result['from_currency']}: {result['reverse_rate']:.2f}"
                 )
             except CurrencyNotFoundError as e:
                 print(f"Неизвестная валюта '{e.code}'")
             except ApiRequestError:
                 print(
-                    f"Курс {from_currency}→{to_currency} недоступен. "
+                    f"Курс {from_currency} → {to_currency} недоступен. "
                     f"Повторите попытку позже."
                 )
             except Exception as e:

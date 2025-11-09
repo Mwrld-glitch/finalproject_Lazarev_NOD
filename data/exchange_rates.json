@@ -466,5 +466,161 @@
       "status_code": 200,
       "updated_at": "2025-11-06T10:11:59.072278"
     }
+  },
+  {
+    "id": "BTC_USD_2025-11-09T19-33-25-679208",
+    "from_currency": "BTC",
+    "to_currency": "USD",
+    "rate": 103445,
+    "timestamp": "2025-11-09T19:33:25.679208",
+    "source": "CoinGecko",
+    "meta": {
+      "raw_id": "BTC_USD",
+      "status_code": 200,
+      "updated_at": "2025-11-09T19:33:25.679208"
+    }
+  },
+  {
+    "id": "USD_BTC_2025-11-09T19-33-25-680172",
+    "from_currency": "USD",
+    "to_currency": "BTC",
+    "rate": 9.666972787471604e-06,
+    "timestamp": "2025-11-09T19:33:25.680172",
+    "source": "CoinGecko",
+    "meta": {
+      "raw_id": "USD_BTC",
+      "status_code": 200,
+      "updated_at": "2025-11-09T19:33:25.680172"
+    }
+  },
+  {
+    "id": "ETH_USD_2025-11-09T19-33-25-681214",
+    "from_currency": "ETH",
+    "to_currency": "USD",
+    "rate": 3516.48,
+    "timestamp": "2025-11-09T19:33:25.681214",
+    "source": "CoinGecko",
+    "meta": {
+      "raw_id": "ETH_USD",
+      "status_code": 200,
+      "updated_at": "2025-11-09T19:33:25.681214"
+    }
+  },
+  {
+    "id": "USD_ETH_2025-11-09T19-33-25-682155",
+    "from_currency": "USD",
+    "to_currency": "ETH",
+    "rate": 0.00028437528437528435,
+    "timestamp": "2025-11-09T19:33:25.682155",
+    "source": "CoinGecko",
+    "meta": {
+      "raw_id": "USD_ETH",
+      "status_code": 200,
+      "updated_at": "2025-11-09T19:33:25.682155"
+    }
+  },
+  {
+    "id": "SOL_USD_2025-11-09T19-33-25-683081",
+    "from_currency": "SOL",
+    "to_currency": "USD",
+    "rate": 162.22,
+    "timestamp": "2025-11-09T19:33:25.683081",
+    "source": "CoinGecko",
+    "meta": {
+      "raw_id": "SOL_USD",
+      "status_code": 200,
+      "updated_at": "2025-11-09T19:33:25.683081"
+    }
+  },
+  {
+    "id": "USD_SOL_2025-11-09T19-33-25-684019",
+    "from_currency": "USD",
+    "to_currency": "SOL",
+    "rate": 0.006164468006411046,
+    "timestamp": "2025-11-09T19:33:25.684019",
+    "source": "CoinGecko",
+    "meta": {
+      "raw_id": "USD_SOL",
+      "status_code": 200,
+      "updated_at": "2025-11-09T19:33:25.684019"
+    }
+  },
+  {
+    "id": "EUR_USD_2025-11-09T19-33-25-684906",
+    "from_currency": "EUR",
+    "to_currency": "USD",
+    "rate": 0.8649,
+    "timestamp": "2025-11-09T19:33:25.684906",
+    "source": "ExchangeRate-API",
+    "meta": {
+      "raw_id": "EUR_USD",
+      "status_code": 200,
+      "updated_at": "2025-11-09T19:33:25.684906"
+    }
+  },
+  {
+    "id": "USD_EUR_2025-11-09T19-33-25-685639",
+    "from_currency": "USD",
+    "to_currency": "EUR",
+    "rate": 1.1562030292519367,
+    "timestamp": "2025-11-09T19:33:25.685639",
+    "source": "ExchangeRate-API",
+    "meta": {
+      "raw_id": "USD_EUR",
+      "status_code": 200,
+      "updated_at": "2025-11-09T19:33:25.685639"
+    }
+  },
+  {
+    "id": "GBP_USD_2025-11-09T19-33-25-686466",
+    "from_currency": "GBP",
+    "to_currency": "USD",
+    "rate": 0.7609,
+    "timestamp": "2025-11-09T19:33:25.686466",
+    "source": "ExchangeRate-API",
+    "meta": {
+      "raw_id": "GBP_USD",
+      "status_code": 200,
+      "updated_at": "2025-11-09T19:33:25.686466"
+    }
+  },
+  {
+    "id": "USD_GBP_2025-11-09T19-33-25-687263",
+    "from_currency": "USD",
+    "to_currency": "GBP",
+    "rate": 1.3142331449599158,
+    "timestamp": "2025-11-09T19:33:25.687263",
+    "source": "ExchangeRate-API",
+    "meta": {
+      "raw_id": "USD_GBP",
+      "status_code": 200,
+      "updated_at": "2025-11-09T19:33:25.687263"
+    }
+  },
+  {
+    "id": "RUB_USD_2025-11-09T19-33-25-688506",
+    "from_currency": "RUB",
+    "to_currency": "USD",
+    "rate": 80.9663,
+    "timestamp": "2025-11-09T19:33:25.688506",
+    "source": "ExchangeRate-API",
+    "meta": {
+      "raw_id": "RUB_USD",
+      "status_code": 200,
+      "updated_at": "2025-11-09T19:33:25.688506"
+    }
+  },
+  {
+    "id": "USD_RUB_2025-11-09T19-33-25-689539",
+    "from_currency": "USD",
+    "to_currency": "RUB",
+    "rate": 0.01235081756236854,
+    "timestamp": "2025-11-09T19:33:25.689539",
+    "source": "ExchangeRate-API",
+    "meta": {
+      "raw_id": "USD_RUB",
+      "status_code": 200,
+      "updated_at": "2025-11-09T19:33:25.689539"
+    }
   }
 ]

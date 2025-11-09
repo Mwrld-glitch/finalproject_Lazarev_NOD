@@ -56,7 +56,7 @@ def register_user(username: str, password: str) -> User:
         return user
 
     except Exception as e:
-        raise ApiRequestError(f"Ошибка при регистрации: {str(e)}")
+        raise ValueError(str(e))
 
 
 @log_action(action="LOGIN")
@@ -83,7 +83,7 @@ def login_user(username: str, password: str) -> User:
         raise ValueError(f"Пользователь '{username}' не найден")
 
     except Exception as e:
-        raise ApiRequestError(f"Ошибка при входе: {str(e)}")
+            raise ValueError(str(e))
 
 
 def get_current_user():
