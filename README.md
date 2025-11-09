@@ -48,7 +48,7 @@ make project
 Сервис автоматически обновляет курсы валют из внешних API:
 
 - **CoinGecko API** - для криптовалют (BTC, ETH, SOL)
-- **ExchangeRate-API** - для фиатных валют (EUR, GBP, RUB)
+- **ExchangeRate-API** - для фиатных валют (USD, EUR, GBP, RUB, и т.д.)
 
 # Демо c работой интерфейса и ошибками программы
 https://asciinema.org/a/6Cs8eAiXfXnaf9AFibVdq9ZAZ
