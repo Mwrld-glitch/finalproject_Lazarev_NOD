@@ -11,31 +11,42 @@ make install
 
 make project
 
-# Основные команды
+## Основные команды
 
-register --username NAME --password PASS - регистрация
+**Регистрация и вход:**
+- `register --username ИМЯ --password ПАРОЛЬ` - регистрация
+- `login --username ИМЯ --password ПАРОЛЬ` - вход
 
-login --username NAME --password PASS - вход
+**Торговля:**
+- `buy --currency ВАЛЮТА --amount СУММА` - купить валюту
+- `sell --currency ВАЛЮТА --amount СУММА` - продать валюту
 
-show-portfolio - показать портфель
+**Портфель и курсы:**
+- `show-portfolio` - показать портфель
+- `get-rate --from ВАЛЮТА --to ВАЛЮТА` - получить курс
+- `update-rates` - обновить курсы валют
+- `show-rates` - показать кэшированные курсы
 
-buy --currency CODE --amount NUMBER - купить валюту
+## Структура проекта
 
-sell --currency CODE --amount NUMBER - продать валюту
-
-get-rate --from CODE --to CODE - получить курс
-
-update-rates - обновить курсы валют
-
-show-rates - показать кэшированные курсы
-
-# Структура проекта
 valutatrade_hub/
-├── core/           # Бизнес-логика (модели, usecases)
-├── cli/            # Интерфейс командной строки
+├── core/ # Бизнес-логика
+│ ├── models.py # Модели данных (User, Wallet, Portfolio)
+│ ├── usecases.py # Бизнес-сценарии
+│ └── exceptions.py # Пользовательские исключения
+├── cli/
+│ └── interface.py # Командный интерфейс
 ├── parser_service/ # Сервис обновления курсов
-├── infra/          # Инфраструктура (настройки, БД)
-└── data/           # Данные (пользователи, портфели, курсы)
+│ ├── api_clients.py # Клиенты внешних API
+│ ├── updater.py # Логика обновления курсов
+│ └── storage.py # Хранение данных
+├── infra/ # Инфраструктура
+│ ├── settings.py # Настройки приложения
+│ └── database.py # Управление данными
+└── data/ # Файлы данных
+├── users.json # Пользователи
+├── portfolios.json # Портфели
+└── rates.json # Курсы валют
 
 # Кэш курсов
 
