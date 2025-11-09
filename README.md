@@ -29,24 +29,11 @@ make project
 
 ## Структура проекта
 
-valutatrade_hub/
-├── core/ # Бизнес-логика
-│ ├── models.py # Модели данных (User, Wallet, Portfolio)
-│ ├── usecases.py # Бизнес-сценарии
-│ └── exceptions.py # Пользовательские исключения
-├── cli/
-│ └── interface.py # Командный интерфейс
-├── parser_service/ # Сервис обновления курсов
-│ ├── api_clients.py # Клиенты внешних API
-│ ├── updater.py # Логика обновления курсов
-│ └── storage.py # Хранение данных
-├── infra/ # Инфраструктура
-│ ├── settings.py # Настройки приложения
-│ └── database.py # Управление данными
-└── data/ # Файлы данных
-├── users.json # Пользователи
-├── portfolios.json # Портфели
-└── rates.json # Курсы валют
+- `valutatrade_hub/core/` - бизнес-логика (модели, usecases)
+- `valutatrade_hub/cli/` - интерфейс командной строки  
+- `valutatrade_hub/parser_service/` - сервис обновления курсов
+- `valutatrade_hub/infra/` - инфраструктура (настройки, БД)
+- `data/` - файлы данных (пользователи, портфели, курсы)
 
 # Кэш курсов
 
